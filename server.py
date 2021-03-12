@@ -24,6 +24,8 @@
 import flask
 from flask import Flask, request
 import json
+import os
+
 app = Flask(__name__)
 app.debug = True
 
@@ -74,27 +76,44 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+
+    f = open('static/index.html', "r")
+    lines = f.readlines()
+    content = ""
+    for line in lines:
+        content += line
+
+    return content
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
+
+    
     return None
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    content = myWorld.world()
+
+    response = app.response_class(response=json.dumps(content), status=200, content_type='application/json')
+    return response
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    content = json.dumps(myWorld.get(entity))
+    response = app.response_class(content, status=200, content_type='application/json')
+    return response
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    myWorld.clear()
+    response = app.response_class(response=json.dumps(myWorld.world()), status=200, content_type='application/json')
+
+    return response
 
 if __name__ == "__main__":
     app.run()
